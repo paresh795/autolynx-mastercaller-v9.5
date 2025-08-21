@@ -148,6 +148,14 @@ terraform.tfstate*
 # =============================================================================
 # 🎯 PROJECT-SPECIFIC EXCLUSIONS
 # =============================================================================
+# Development directories (essential locally, not for GitHub)
+.bmad-core/
+.claude/
+.cursor/
+
+# Obsolete files archive
+obsolete/
+
 # Test files that may contain sensitive data
 test-webhook.ts
 validate-*.js
