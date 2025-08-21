@@ -232,9 +232,36 @@ export async function POST(request: NextRequest) {
           continue
         }
         
-        // Limit launches to actual available slots (critical protection)
-        const callsToLaunch = queuedCalls.slice(0, actualAvailableSlots)
-        console.log(`✅ SAFE TO LAUNCH: ${callsToLaunch.length} calls (was ${queuedCalls.length}, limited to ${actualAvailableSlots})`)
+        // 🚨 CRITICAL CONCURRENCY PROTECTION FOR CONTINUOUS MODE
+        let safeLaunchLimit = actualAvailableSlots
+        
+        if (campaign.mode === 'continuous') {
+          // For continuous mode, implement safety measures to prevent Vapi limits
+          
+          // 1. Never launch more than 4 calls at once (progressive launching)
+          const MAX_CONTINUOUS_BATCH = 4
+          safeLaunchLimit = Math.min(safeLaunchLimit, MAX_CONTINUOUS_BATCH)
+          
+          // 2. Reserve buffer for Vapi's internal processing (2 call buffer)
+          const VAPI_SAFETY_BUFFER = 2
+          const totalPossibleActive = prelaunchActiveCount + safeLaunchLimit
+          
+          // Ensure we never exceed 8 calls when accounting for buffer
+          if (totalPossibleActive > (10 - VAPI_SAFETY_BUFFER)) {
+            safeLaunchLimit = Math.max(0, (10 - VAPI_SAFETY_BUFFER) - prelaunchActiveCount)
+            console.log(`⚠️  SAFETY BUFFER: Limiting to ${safeLaunchLimit} calls to stay under Vapi's 10 limit with buffer`)
+          }
+          
+          console.log(`🛡️ CONTINUOUS MODE PROTECTION:`)
+          console.log(`  - Max batch size: ${MAX_CONTINUOUS_BATCH}`)
+          console.log(`  - Current active: ${prelaunchActiveCount}`)
+          console.log(`  - Safe to launch: ${safeLaunchLimit}`)
+          console.log(`  - Total after launch: ${prelaunchActiveCount + safeLaunchLimit}/10 (with ${VAPI_SAFETY_BUFFER} buffer)`)
+        }
+        
+        // Limit launches to safe amount
+        const callsToLaunch = queuedCalls.slice(0, safeLaunchLimit)
+        console.log(`✅ SAFE TO LAUNCH: ${callsToLaunch.length} calls (was ${queuedCalls.length}, limited to ${safeLaunchLimit})`)
 
         // Launch each queued call with staggered timing to prevent API rate limits
         for (let i = 0; i < callsToLaunch.length; i++) {
@@ -389,6 +416,12 @@ export async function POST(request: NextRequest) {
           } else {
             console.log(`✅ BATCH COMPLETE: Campaign ${campaign.id} - all contacts processed!`)
           }
+        }
+
+        // Add cooldown for continuous mode to let Vapi process
+        if (campaign.mode === 'continuous' && totalCallsLaunched > 0) {
+          console.log(`⏳ CONTINUOUS MODE: Adding 3-second cooldown to let Vapi process...`)
+          await new Promise(resolve => setTimeout(resolve, 3000))
         }
 
         campaignsProcessed++
