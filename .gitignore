@@ -1,6 +1,60 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# 🔒 AUTOLYNX SECURITY: CRITICAL FILES TO NEVER COMMIT
 
-# dependencies
+# =============================================================================
+# 🚨 ENVIRONMENT & SECRETS (HIGHEST PRIORITY)
+# =============================================================================
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+.env.*.local
+*.env
+.env*
+
+# API Keys and Secrets - NEVER COMMIT THESE
+*.key
+*.pem
+*.p8
+*.crt
+secrets/
+keys/
+
+# =============================================================================
+# 📁 SESSION & TEMPORARY DATA  
+# =============================================================================
+.sessions.json
+.sessions.backup.json
+.sessions.tmp.json
+*.session
+session-data/
+temp-sessions/
+
+# CSV Upload Data (may contain PII)
+uploads/
+csv-data/
+temp-uploads/
+test-contacts*.csv
+backup-*.csv
+
+# =============================================================================
+# 🔧 NEXT.JS & BUILD ARTIFACTS
+# =============================================================================
+/.next/
+/out/
+/build
+/.turbo/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+next-env.d.ts
+
+# =============================================================================
+# 📦 NODE.JS & PACKAGE MANAGERS
+# =============================================================================
 /node_modules
 /.pnp
 .pnp.*
@@ -10,32 +64,120 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Lock files (keep pnpm-lock.yaml but exclude others)
+package-lock.json
+yarn.lock
 
-# vercel
+# =============================================================================
+# 🗄️ DATABASE & BACKUPS (CONTAINS SENSITIVE DATA)
+# =============================================================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+database.json
+backup-*.sql
+*.dump
+.supabase/
+
+# =============================================================================
+# 📊 LOGS & MONITORING
+# =============================================================================
+logs/
+*.log
+/coverage
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# 🖥️ OPERATING SYSTEM
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Windows
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =============================================================================
+# 🛠️ DEVELOPMENT TOOLS
+# =============================================================================
+.vscode/settings.json
+.vscode/launch.json
+*.swp
+*.swo
+.idea/
+
+# =============================================================================
+# ☁️ DEPLOYMENT & INFRASTRUCTURE
+# =============================================================================
 .vercel
+.netlify
+terraform.tfstate*
+*.tfvars
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# =============================================================================
+# 🎯 PROJECT-SPECIFIC EXCLUSIONS
+# =============================================================================
+# Test files that may contain sensitive data
+test-webhook.ts
+validate-*.js
+debug-*.ts
+
+# SQL files that may contain production data
+backup-current-state.sql
+resume-*.sql
+diagnose-*.sql
+production-*.sql
+verify-*.sql
+fix-*.sql
+
+# Analysis files (may contain sensitive system details)
+analyze-*.md
+FINAL-EXPERT-ANALYSIS.md
+FIX_SUMMARY.md
+NEXTJS15_FIX.md
+test-reconciliation.md
+
+# Temporary script files
+trigger-*.js
+test-*.ts
+test-*.js
+nul
+
+# Webhook test payloads (may contain real data)
+webhook-test-payload.json
+test-webhook-complete.json
+
+# =============================================================================
+# END OF SECURITY CONFIGURATION
+# =============================================================================
